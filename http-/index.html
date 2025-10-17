@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="UTF-8">
+<title>Coding Products</title>
+<head>
+    <style>
+        body {
+            background-image: url('https://imgs.search.brave.com/Z7-ah66pQAv1tSO-S6WWLnAMBy8QLQdqxl0HTS4XKVE/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9wbHVz/LnVuc3BsYXNoLmNv/bS9wcmVtaXVtX3Bo/b3RvLTE2NjE5NjM4/NzQ0MTgtZGYxMTEw/ZWUzOWMxP2l4bGli/PXJiLTQuMS4wJml4/aWQ9TTN3eE1qQTNm/REI4TUh4elpXRnlZ/Mmg4Tlh4OFkyOWta/WHhsYm53d2ZId3dm/SHg4TUE9PSZmbT1q/cGcmcT02MCZ3PTMw/MDA')
+        }
+        .search {
+            width: 900px;
+        }
+        header {
+            font-size: 48px;
+            font-family: italic;
+            color: white;
+        }
+        #product {
+            background: lightblue;
+            width: 1500px;
+            height: fit-content;
+            margin: 8px;
+            padding: 10px;
+        }
+        #buttons {
+            background: blue;
+            width: fit-content;
+            height: fit-content;
+            border-radius: 30px;
+            border: 10px solid lightblue;
+            padding: 10px;
+            margin: 8px;
+        }
+        input {
+            background: white;
+            width: 180px;
+            height: 90px;
+            border-radius: 30px;
+            border: 10px solid lightblue;
+            padding: 10px;
+            margin: 8px;
+        }
+
+        .buttons {
+            background: blue;
+            width: fit-content;
+            height: fit-content;
+            border-radius: 30px;
+            border: 10px solid lightblue;
+            padding: 10px;
+            margin: 8px;
+        }
+        a {
+            color: lightgreen;
+        }
+
+    </style>
+</head>
+<body>
+<center>
+    <header>Coding Products Home Page</header>
+    <nav><a href = 'http://localhost:3000'>Get Coding Products</a></nav>
+    <hr/>
+    <div id="product">
+        <label>Item: </label>
+        <input type='text' id='item'/>
+        <label>Cost: </label>
+        <input type='text' id='cost'/>
+        <label>Sold: </label>
+        <input type='text' id='sold'/>
+        <div id="buttons">
+            <input type='button' id='DeleteAll' value='Delete All' onclick = 'DeleteAll()'/>
+            <input type = 'button' id='AddProduct' value = 'Add Product' onclick = 'AddProduct()'>
+        </div>
+        <input class = 'search' type = 'search' placeholder = 'Search here .....' >
+        <input type = 'button' value = 'Refresh' onclick = 'reload()'>
+        <div id = 'products'></div>
+    </div>
+    <script>
+        function reload() {
+            Get('http://localhost:8080/AllProducts');
+        }
+        function Get(route) {
+            let div = document.querySelector('#products');
+            div.innerHTML = '';
+            fetch(route)
+                .then(reply => reply.json())
+                .then(res => {
+                    for(let i = 0; i < res.length; i++) {
+                        let item = res[i].item;
+                        let cost = res[i].cost;
+                        let sold = res[i].sold;
+                        let container = document.createElement('div');
+                        let setItem = document.createElement('strong');
+                        let setCost = document.createElement('strong');
+                        let setSold = document.createElement('strong');
+                        let br = document.createElement('br');
+                        let deleteProduct = document.createElement('button');
+                        deleteProduct.id = item;
+                        deleteProduct.className = 'button';
+                        deleteProduct.innerHTML = 'Delete';
+                        deleteProduct.style.color = 'white';
+                        deleteProduct.style.background = 'red';
+                        deleteProduct.addEventListener('click', function (e) {
+                            DeleteOne(this.id, 'http://localhost:8080/DeleteProduct');
+                        });
+                        deleteProduct.style.width = '120px';
+                        deleteProduct.style.height = '90px';
+                        let updateProduct = document.createElement('button');
+                        updateProduct.id = item;
+                        updateProduct.className = 'button';
+                        updateProduct.innerHTML = 'Update';
+                        updateProduct.style.color = 'white';
+                        updateProduct.style.background = 'blue';
+                        updateProduct.addEventListener('click', function (e) {
+                            document.getElementById('item').innerHTML = item;
+                            let costUpdate = document.getElementById('cost').value;
+                            let soldUpdate = document.getElementById('sold').value;
+                            Put({item: this.id, cost: costUpdate, sold: soldUpdate}, 'http://localhost:8080/UpdateProduct');
+                        });
+                        updateProduct.style.width = '120px';
+                        updateProduct.style.height = '90px';
+                        container.style.backgroundColor = 'lightgreen';
+                        setItem.style.margin = "10px";
+                        setCost.style.margin = "10px";
+                        setSold.style.margin = "10px";
+                        setItem.style.color = "green";
+                        setCost.style.color = "blue";
+                        setSold.style.color = "purple";
+                        setItem.textContent = "Item: " + item;
+                        setCost.textContent = "Cost: $" + cost;
+                        if(sold) {
+                            sold = "not Available"
+                        } else {
+                            sold = "Available";
+                        }
+                        setSold.textContent = "Available: " + sold;
+                        container.append(setItem);
+                        container.append(setCost);
+                        container.append(setSold);
+                        container.append(deleteProduct);
+                        container.append(updateProduct);
+                        container.append(br);
+                        div.appendChild(container);
+                    }
+                })
+                .catch(error => console.error(error));
+        }
+        function search(route) {
+            let div = document.querySelector('#products');
+            div.innerHTML = '';
+            fetch(route)
+                .then(reply => reply.json())
+                .then(res => {
+                    for(let i = 0; i < res.length; i++) {
+                        if (document.querySelector('.search').value === res[i].item) {
+                            let item = res[i].item;
+                            let cost = res[i].cost;
+                            let sold = res[i].sold;
+                            let container = document.createElement('div');
+                            let setItem = document.createElement('strong');
+                            let setCost = document.createElement('strong');
+                            let setSold = document.createElement('strong');
+                            let br = document.createElement('br');
+                            let deleteProduct = document.createElement('button');
+                            deleteProduct.id = item;
+                            deleteProduct.className = 'button';
+                            deleteProduct.innerHTML = 'Delete';
+                            deleteProduct.style.color = 'white';
+                            deleteProduct.style.background = 'red';
+                            deleteProduct.addEventListener('click', function (e) {
+                                DeleteOne(this.id, 'http://localhost:8080/DeleteProduct');
+                            });
+                            deleteProduct.style.width = '120px';
+                            deleteProduct.style.height = '90px';
+                            let updateProduct = document.createElement('button');
+                            updateProduct.id = item;
+                            updateProduct.className = 'button';
+                            updateProduct.innerHTML = 'Update';
+                            updateProduct.style.color = 'white';
+                            updateProduct.style.background = 'blue';
+                            updateProduct.addEventListener('click', function (e) {
+                                document.getElementById('item').innerHTML = item;
+                                let costUpdate = document.getElementById('cost').value;
+                                let soldUpdate = document.getElementById('sold').value;
+                                Put({
+                                    item: this.id,
+                                    cost: costUpdate,
+                                    sold: soldUpdate
+                                }, 'http://localhost:8080/UpdateProduct');
+                            });
+                            updateProduct.style.width = '120px';
+                            updateProduct.style.height = '90px';
+                            container.style.backgroundColor = 'lightgreen';
+                            setItem.style.margin = "10px";
+                            setCost.style.margin = "10px";
+                            setSold.style.margin = "10px";
+                            setItem.style.color = "green";
+                            setCost.style.color = "blue";
+                            setSold.style.color = "purple";
+                            setItem.textContent = "Item: " + item;
+                            setCost.textContent = "Cost: $" + cost;
+                            if (sold) {
+                                sold = "not Available"
+                            } else {
+                                sold = "Available";
+                            }
+                            setSold.textContent = "Available: " + sold;
+                            container.append(setItem);
+                            container.append(setCost);
+                            container.append(setSold);
+                            container.append(deleteProduct);
+                            container.append(updateProduct);
+                            container.append(br);
+                            div.appendChild(container);
+                        }
+                    }
+                })
+                .catch(error => console.error(error));
+        }
+        document.querySelector('.search').addEventListener('input', () => {
+            search('http://localhost:8080/AllProducts');
+        });
+        function Delete(route) {
+
+            const settings = {
+                method: 'DELETE',
+            }
+            fetch(route, settings);
+        }
+
+        function DeleteOne(data, route) {
+
+            const settings = {
+                method: 'DELETE',
+            }
+            fetch(route + '/' + data, settings);
+        }
+
+        if('geolocation' in navigator) {
+            console.log('Geolocation is available.');
+            Get('http://localhost:8080/AllProducts');
+            function AddProduct() {
+                let item = document.getElementById('item').value;
+                let cost = document.getElementById('cost').value;
+                let sold = document.getElementById('sold').value;
+                if(sold === 'true')
+                    sold = true;
+                else
+                    sold = false;
+                Post({'cost': parseInt(cost), 'item': item, 'sold': sold}, 'http://localhost:8080/AddProduct');
+            }
+            function DeleteAll() {
+                Delete('http://localhost:8080/DeleteAll');
+            }
+        } else {
+            console.log('Geolocation is not available.');
+        }
+
+        function Put(data, route) {
+
+            const settings = {
+                method: 'PUT',
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            }
+            fetch(route, settings);
+        }
+
+        function Post(data, route) {
+
+            const settings = {
+                method: 'POST',
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            }
+            fetch(route, settings);
+        }
+    </script>
+</center>
+</body>
+</html>

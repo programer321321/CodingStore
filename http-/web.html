@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Coding Products</title>
+    <style>
+        .search {
+            width: 900px;
+        }
+        body {
+            background: black;
+            color: white;
+        }
+        a {
+            color: lightgreen;
+        }
+        input {
+            background: white;
+            width: 180px;
+            height: 90px;
+            border-radius: 30px;
+            border: 10px solid lightblue;
+            padding: 10px;
+            margin: 8px;
+        }
+    </style>
+</head>
+<body>
+<center>
+    <header>Coding Products</header>
+    <nav><a href = 'http://localhost:3000/buy.com'>Get Coding Products</a></nav>
+    <hr />
+    <p>Pls inform that products is for buying here is your choices:</p>
+    <input type = 'button' value = 'Refresh' onclick = 'reload()'>
+    <input class = 'search' type = 'search' placeholder = 'Search here .....' >
+    <div id = 'products'>
+
+    </div>
+    <script>
+        Get('http://localhost:8080/AllProducts');
+        function Get(route) {
+            let div = document.querySelector('#products');
+            div.innerHTML = '';
+            fetch(route)
+                .then(reply => reply.json())
+                .then(res => {
+                    for(let i = 0; i < res.length; i++) {
+                        let item = res[i].item;
+                        let cost = res[i].cost;
+                        let sold = res[i].sold;
+                        let container = document.createElement('div');
+                        let setItem = document.createElement('strong');
+                        let setCost = document.createElement('strong');
+                        let setSold = document.createElement('strong');
+                        let br = document.createElement('br');
+                        container.style.backgroundColor = 'lightgreen';
+                        setItem.style.margin = "10px";
+                        setCost.style.margin = "10px";
+                        setSold.style.margin = "10px";
+                        setItem.style.color = "green";
+                        setCost.style.color = "blue";
+                        setSold.style.color = "purple";
+                        setItem.textContent = "Item: " + item;
+                        setItem.style.fontSize = "24px";
+                        setCost.style.fontSize = "24px";
+                        setSold.style.fontSize = "24px";
+                        setItem.style.fontWeight = "24px";
+                        setCost.style.fontWeight = "24px";
+                        setSold.style.fontWeight = "24px";
+                        setCost.textContent = "Cost: $" + cost;
+                        if(sold) {
+                            sold = "not Available"
+                        } else {
+                            sold = "Available";
+                        }
+                        setSold.textContent = "Available: " + sold;
+                        container.append(setItem);
+                        container.append(setCost);
+                        container.append(setSold);
+                        container.append(br);
+                        div.appendChild(container);
+                    }
+                })
+                .catch(error => console.error(error));
+        }
+        function reload() {
+            Get('http://localhost:8080/AllProducts');
+        }
+        function search(route) {
+            let div = document.querySelector('#products');
+            div.innerHTML = '';
+            fetch(route)
+                .then(reply => reply.json())
+                .then(res => {
+                    for(let i = 0; i < res.length; i++) {
+                        if (document.querySelector('.search').value === res[i].item) {
+                            let item = res[i].item;
+                            let cost = res[i].cost;
+                            let sold = res[i].sold;
+                            let container = document.createElement('div');
+                            let setItem = document.createElement('strong');
+                            let setCost = document.createElement('strong');
+                            let setSold = document.createElement('strong');
+                            let br = document.createElement('br');
+                            container.style.backgroundColor = 'lightgreen';
+                            setItem.style.margin = "10px";
+                            setCost.style.margin = "10px";
+                            setSold.style.margin = "10px";
+                            setItem.style.color = "green";
+                            setCost.style.color = "blue";
+                            setSold.style.color = "purple";
+                            setItem.textContent = "Item: " + item;
+                            setCost.textContent = "Cost: $" + cost;
+                            if (sold) {
+                                sold = "not Available"
+                            } else {
+                                sold = "Available";
+                            }
+                            setSold.textContent = "Available: " + sold;
+                            container.append(setItem);
+                            container.append(setCost);
+                            container.append(setSold);
+                            container.append(br);
+                            div.appendChild(container);
+                        }
+                    }
+                })
+                .catch(error => console.error(error));
+        }
+        document.querySelector('.search').addEventListener('input', () => {
+            search('http://localhost:8080/AllProducts');
+        });
+    </script>
+</center>
+</body>
+</html>
